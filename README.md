@@ -1,10 +1,26 @@
-> From the archives, this was created in 2013 while I was learning more about AHK. This script is not guaranteed to work anymore, but I may resume progress on it. However, this script may not be necessary anymore as well, as Origin has gone through many changes.
-
-> This readme is the archived readme from when I first created this. The only thing that has changed is some redactions.
-
-> The INI included in this script is completely non-standard. At the time, I did not know how to properly parse INI files, but four years later, it's probably one of the easiest things to do in AHK. If I ever get around to messing with this script again, that'll probably be the first fix implemented.
-
 # OLauncher
+
+## Usage
+
+### Command Line
+
+`OLauncher.exe "<path to Origin>" "<Origin.exe>" "<path to Origin Game>" "<Game.exe>" "<CloseOriginAfter>"`
+
+* `<path to Origin>` is the install directory where Origin resides, usually `C:\Program Files (x86)\Origin`
+* `<Origin.exe>` is usually `Origin.exe`. This won't change unless EA changes Origin's executable name.
+* `<path to Origin Game>` is the install directory where the game you want to run resides.
+  * As an example, let's say Mass Effect Andromeda, which is installed to `D:\Games\Origin Games\Mass Effect Andromeda`
+* `<Game.exe>` is the game executable.
+  * In Mass Effect Andromeda's case, it would be `MassEffectAndromeda.exe`.
+* `<CloseOriginAfter>` is either `0` or `1`.
+  * `0` means keep Origin open after closing the game.
+  * `1` means close Origin after closing the game.
+
+### INI File
+
+OLauncher supports launching through an INI file as well. If you run `OLauncher.exe` without any command line arguments, OLauncher will generate an INI in the directory where it was run. From there, you can fill out the game details and save the file. Running `OLauncher.exe` again with the INI beside it will launch whatever is found in the INI.
+
+## About the Script
 
 OLauncher is a script that allows you to launch Origin games from within
 the Steam client.  Launching games through this script is automated,
@@ -14,19 +30,17 @@ will ask if you would like to keep Origin running or shut it down as
 well.
 
 Running Origin games through this script should allow the Steam overlay
-to work, though not guaranteed.  However, this is untested with using
-both the Steam and Origin overlay, since I personally do not use the
-Origin overlay (though this may be tested in the future).
+to work, though not guaranteed.
 
-The OLauncher.ini file is preset for Mass Effect 3.  This setup should
-tell you how to fill out the INI file, though if you have any questions
-on setting up, feel free to email me - [REDACTED]
+## Disclaimer
+
+By using this script in any way, you agree to the following disclaimer:
 
 I am, in no way shape or form, related to or involved in Origin, EA,
-Electronic Arts, or any similar entity.  Origin is Copyright © 2013
+Electronic Arts, or any similar entity. Origin is Copyright © 2017
 Electronic Arts Inc.
 
-I am not responsible for your use of this script.  I am also not
+I am not responsible for your use of this script. I am also not
 responsible if this script works as intended, blows up your computer,
 eats your lunch, fails to do what you expect, or becomes sentient. I
 am not obligated in any way to support the use of this script, or give
