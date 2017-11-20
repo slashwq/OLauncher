@@ -1,3 +1,13 @@
+/*
+================================================================
+> OLauncher
+> Originally created by William Quinn (Hyp5r)
+> william@hyp5r.io
+> https://github.com/Hyp5r/OLauncher
+> Please leave this comment if you decide to modify this script!
+================================================================
+*/
+
 #NoEnv
 #Persistent
 #SingleInstance, Force

@@ -45,3 +45,7 @@ responsible if this script works as intended, blows up your computer,
 eats your lunch, fails to do what you expect, or becomes sentient. I
 am not obligated in any way to support the use of this script, or give
 support to you for this script.
+
+## Credits
+
+The icon used in the compiled EXE was created by **Pixel Buddha** and can be found by going to https://www.flaticon.com/free-icon/gamepad_214304.
