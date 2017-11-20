@@ -18,11 +18,21 @@ InfoGameClosed          := "The game has been closed. Origin will close soon."
 IfNotExist, %A_WorkingDir%\%INI%
 {	FileAppend,
 	(
-	[OLauncher]
-	OriginInstallLocation=
-	OriginEXE=Origin.exe
-	GameInstallLocation=
-	GameEXE=
+		[OLauncher]
+		OriginInstallLocation=
+		OriginEXE=Origin.exe
+		GameInstallLocation=
+		GameEXE=
+
+		[Debug]
+		; Debug shows message boxes with process IDs. Generally used to help
+		; troubleshoot why OLauncher isn't launching a program correctly.
+		Debug=0
+
+		; Verbose shows tooltips that show if Origin needs to be launched and when
+		; OLauncher detects that the game closes. It's not required, but can help
+		; if Origin is closing in the middle of your game.
+		Verbose=0
 	), %A_WorkingDir%\%INI%
 	MsgBox, 4160, %Title%, %ErrorININotFound%
 	ExitApp, 1
@@ -34,6 +44,11 @@ IniRead, OriginEXE, %ini%, OLauncher, OriginEXE
 IniRead, GameInstallLocation, %ini%, OLauncher, GameInstallLocation
 IniRead, GameEXE, %ini%, OLauncher, GameEXE
 IniRead, Debug, %ini%, Debug, Debug
+
+; How should we set up the tray menu?
+If Debug = 0
+  Menu, Tray, NoStandard
+Menu, Tray, Tip, %Title% for %GameEXE%
 
 ; Let's verify what we read and make sure they exist.
 IfNotExist, %OriginInstallLocation%\%OriginEXE%
@@ -48,7 +63,8 @@ IfNotExist,%GameInstallLocation%\%GameEXE%
 ; Let's see if Origin is running.
 Process, Exist, %OriginEXE%
 If ErrorLevel = 0
-{ TrayTip, %Title%, %InfoRunningOrigin%, 10, 2
+{ If Verbose = 1
+	  TrayTip, %Title%, %InfoRunningOrigin%, 10, 2
 	Run, %OriginInstallLocation%\%OriginEXE%, , Min, OriginEXE_PID
   Process, Wait, %OriginEXE%
 	Sleep, 5000 ; Origin needs some extra time to load into the background, otherwise we risk spawning a second Origin.
@@ -73,7 +89,13 @@ Loop
 	If ErrorLevel = 0
 	  Break
 }
-TrayTip, %Title%, %InfoGameClosed%, 10, 1
+If Verbose = 1
+  TrayTip, %Title%, %InfoGameClosed%, 10, 1
 Sleep, 10000 ; Give Origin 10 seconds to sync saves, change game states, etc.
 Process, Close, %OriginEXE%
-ExitApp
+
+; Delete debug.log, this is spawning after loading ME:A.
+FileDelete, %A_WorkingDir%\debug.log
+
+; Close out of OLauncher.
+ExitApp, 0
