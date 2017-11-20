@@ -16,7 +16,7 @@ SetWorkingDir, %A_ScriptDir%
 
 ; Application Variables
 Title                   := "OLauncher"
-Version                 := "2.1"
+Version                 := "2.1-r2"
 INI                     := "OLauncher.ini"
 ErrorININotFound        := "This looks to be the first time this has been run, or you didn't pass the four required launch options. An INI has been written to this folder. Please modify it to your needs, then run the app again." ; ExitApp, 1
 ErrorOriginNotFound     := "Origin doesn't seem to be installed. Please check your INI file and try running this again." ; ExitApp, 2
@@ -120,7 +120,7 @@ If Debug = 1
 
 ; Monitor the %GameEXE% process.
 Loop
-{ Sleep, 7500 ; We only want to check this every 7.5 seconds.
+{ Sleep, 15000 ; We only want to check this every 15 seconds.
 	Process, Exist, %GameEXE%
 	If ErrorLevel = 0
 	  Break
