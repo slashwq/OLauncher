@@ -55,6 +55,11 @@ well.
 Running Origin games through this script should allow the Steam overlay
 to work, though not guaranteed.
 
+## Issues
+
+* If you have this script in Steam as a non-Steam game and set the script to launch your game as an administrator, Steam will not show you are playing a game.
+  * Resolution: Launch Steam as an administrator. There's nothing I can do to fix this.
+
 ## Disclaimer
 
 By using this script in any way, you agree to the following disclaimer:
