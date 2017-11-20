@@ -16,7 +16,7 @@ SetWorkingDir, %A_ScriptDir%
 
 ; Application Variables
 Title                   := "OLauncher"
-Version                 := "2.0"
+Version                 := "2.1"
 INI                     := "OLauncher.ini"
 ErrorININotFound        := "This looks to be the first time this has been run, or you didn't pass the four required launch options. An INI has been written to this folder. Please modify it to your needs, then run the app again." ; ExitApp, 1
 ErrorOriginNotFound     := "Origin doesn't seem to be installed. Please check your INI file and try running this again." ; ExitApp, 2
@@ -103,7 +103,7 @@ If ErrorLevel = 0
 	  TrayTip, %Title%, %InfoRunningOrigin%, 10, 2
 	Run, %OriginInstallLocation%\%OriginEXE%, %A_Temp%, Min, OriginEXE_PID
   Process, Wait, %OriginEXE%
-	Sleep, 5000 ; Origin needs some extra time to load into the background, otherwise we risk spawning a second Origin.
+	Sleep, 10000 ; Origin needs some extra time to load into the background, otherwise we risk spawning a second Origin.
 	If Debug = 1
 	  MsgBox, 4160, %Title% - Debug, %OriginEXE% PID is %OriginEXE_PID%.
   }
