@@ -96,7 +96,8 @@ Process, Close, %OriginEXE%
 
 ; Delete debug.log, this is spawning after loading ME:A.
 Sleep, 5000 ; Give Origin time to properly close, otherwise we can't delete the files below.
-FileDelete, debug.log
+IfExist, debug.log
+  FileDelete, debug.log
 
 ; Close out of OLauncher.
 ExitApp, 0
