@@ -16,7 +16,7 @@ SetWorkingDir, %A_ScriptDir%
 
 ; Application Variables
 Title                   := "OLauncher"
-Version                 := "2.4-r3"
+Version                 := "2.4-r4"
 ErrorININotFound        := "This looks to be the first time this has been run, or you didn't pass the four required launch options. An INI has been written to this folder. Please modify it to your needs, then run the app again." ; ExitApp, 1
 ErrorOriginNotFound     := "Origin doesn't seem to be installed. Please check your launch arguments or your INI file and try running this again." ; ExitApp, 2
 ErrorGameNotFound       := "The game listed doesn't seem to be installed. Please check your launch arguments or your INI file and try running this again." ; ExitApp, 3
@@ -61,6 +61,8 @@ If 0 >= 4 ; We need at least 4 switches passed before we even consider looking a
 	Verbose = %8%
 	If Verbose =
 	  Verbose := "0"
+  Menu, Tray, Rename, Running N/A, Running %GameEXE%
+  Menu, Tray, Tip, %Title% %Version%`nRunning %GameEXE%
   Gosub, Verify ; We don't need to read an INI file, let's skip it.
   }
 Else
@@ -73,6 +75,8 @@ Else
 		IniRead, CloseOriginAfter, %A_ScriptName%.ini, OLauncher, CloseOriginAfter
 	  IniRead, Debug, %A_ScriptName%.ini, Debug, Debug
 		IniRead, Verbose, %A_ScriptName%.ini, Debug, Verbose
+    Menu, Tray, Rename, Running N/A, Running %GameEXE%
+    Menu, Tray, Tip, %Title% %Version%`nRunning %GameEXE%
 	  }
 	Else ; We don't have an INI, so let's make one and tell the user about it.
 	{ FileAppend,
