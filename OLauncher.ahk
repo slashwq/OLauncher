@@ -45,6 +45,19 @@ IniRead, GameInstallLocation, %ini%, OLauncher, GameInstallLocation
 IniRead, GameEXE, %ini%, OLauncher, GameEXE
 IniRead, Debug, %ini%, Debug, Debug
 
+; DEBUG ONLY - Testing Command Line Parameters
+If Debug = 1
+{ If 0 = 4 ; Checks %0%, the amount of command line arguments passed. Must equal four to overwrite the INI settings.
+	{	OriginInstallLocation = %1%
+	  OriginEXE = %2%
+	  GameInstallLocation = %3%
+	  GameEXE = %4%
+	  }
+	MsgBox, 4160, %Title% - Debug, %1% %2% %3% %4%
+	MsgBox, 4160, %Title% - Debug, %OriginInstallLocation% %OriginEXE% %GameInstallLocation% %GameEXE%
+	ExitApp
+  }
+
 ; How should we set up the tray menu?
 If Debug = 0
   Menu, Tray, NoStandard
