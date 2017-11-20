@@ -6,7 +6,7 @@ SetWorkingDir, %A_ScriptDir%
 
 ; Application Variables
 Title                   := "OLauncher"
-Version                 := "develop"
+Version                 := "2.0"
 INI                     := "OLauncher.ini"
 ErrorININotFound        := "This looks to be the first time this has been run, or you didn't pass the four required launch options. An INI has been written to this folder. Please modify it to your needs, then run the app again." ; ExitApp, 1
 ErrorOriginNotFound     := "Origin doesn't seem to be installed. Please check your INI file and try running this again." ; ExitApp, 2
@@ -14,8 +14,8 @@ ErrorGameNotFound       := "The game listed doesn't seem to be installed. Please
 InfoRunningOrigin       := "Origin is not running. Launching Origin now."
 InfoGameClosed          := "The game has been closed. Origin will close soon."
 
-; Check for an INI file in the working directory.
-If 0 >= 4 ; So, we don't have an INI. Did someone pass switches?
+; Check if switches were passed to OLauncher.
+If 0 >= 4 ; We need at least 4 switches passed before we even consider looking at them.
 { OriginInstallLocation = %1%
   OriginEXE = %2%
   GameInstallLocation = %3%
@@ -27,10 +27,10 @@ If 0 >= 4 ; So, we don't have an INI. Did someone pass switches?
 	Verbose = %7%
 	If Verbose =
 	  Verbose := "0"
-  Gosub, Tray
+  Gosub, Tray ; We don't need to read an INI file, let's skip it.
   }
 Else
-{	IfExist, %A_WorkingDir%\%INI%
+{	IfExist, %A_WorkingDir%\%INI% ; So, we don't have switches, do we have an INI?
 	{ IniRead, OriginInstallLocation, %ini%, OLauncher, OriginInstallLocation
 	  IniRead, OriginEXE, %ini%, OLauncher, OriginEXE
 	  IniRead, GameInstallLocation, %ini%, OLauncher, GameInstallLocation
@@ -39,7 +39,7 @@ Else
 	  IniRead, Debug, %ini%, Debug, Debug
 		IniRead, Verbose, %INI%, Debug, Verbose
 	  }
-	Else
+	Else ; We don't have an INI, so let's make one and tell the user about it.
 	{ FileAppend,
 	  (
 [OLauncher]
