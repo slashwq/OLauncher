@@ -1,90 +1,79 @@
-; --------------------------------
-; BEGINNING VARIABLES
-; --------------------------------
 #NoEnv
 #Persistent
-#SingleInstance,Force
-SendMode,Input
-SetWorkingDir,%A_ScriptDir%
+#SingleInstance, Force
+SendMode, Input
+SetWorkingDir, %A_ScriptDir%
 
-; --------------------------------
-; TRAY MENU
-; --------------------------------
-Menu,Tray,NoStandard
-Menu,Tray,Add,Force Close OLauncher,TrayExit
+; Application Variables
+Title                   := "OLauncher"
+Version                 := "develop"
+INI                     := "OLauncher.ini"
+ErrorININotFound        := "This looks to be the first time this has been run! An INI has been written to this folder. Please modify it to your needs, then run the app again." ; ExitApp, 1
+ErrorOriginNotFound     := "Origin doesn't seem to be installed. Please check your INI file and try running this again." ; ExitApp, 2
+ErrorGameNotFound       := "The game listed doesn't seem to be installed. Please check your INI file and try running this again." ; ExitApp, 3
+InfoRunningOrigin       := "Origin is not running. Launching Origin now."
+InfoGameClosed          := "The game has been closed. Origin will close soon."
 
-; --------------------------------
-; FAILSAFE - OLauncher.ini
-; --------------------------------
-IfNotExist,%A_ScriptDir%\OLauncher.ini
-	{
-	FileInstall,OLauncher.example.ini,%A_ScriptDir%\OLauncher.ini,0
-	FileInstall,Readme.txt,%A_ScriptDir%\Readme.txt
-	MsgBox,4160,OLauncher,OLauncher.ini has been created.  Edit it to your needs, then place OLauncher.exe and OLauncher.ini where you like.
-	ExitApp
-	}	
-	
-; --------------------------------
-; VARIABLES
-; --------------------------------
-FileReadLine,oPATH,%A_ScriptDir%\OLauncher.ini,3	;oPATH
-oEXE = Origin.exe									;oEXE
-FileReadLine,pPATH,%A_ScriptDir%\OLauncher.ini,7	;pPATH
-FileReadLine,pEXE,%A_ScriptDir%\OLauncher.ini,11	;pEXE
-
-; --------------------------------
-; FAILSAFE - Variables
-; --------------------------------
-IfNotExist,%oPATH%\%oEXE%
-	{
-	MsgBox,4160,OLauncher,Error 1`nOrigin not found`n`nPlease check your OLauncher.ini file and try again.
-	ExitApp
-	}
-IfNotExist,%pPATH%\%pEXE%
-	{
-	MsgBox,4160,OLauncher,Error 2`nApplication not found`n`nPlease check your OLauncher.ini file and try again.
-	ExitApp
-	}
-	
-; --------------------------------
-; LAUNCH CODE
-; --------------------------------
-Process,Exist,%oEXE%
-if ErrorLevel
-	{
-	Process,Close,%oEXE%
-	TrayTip,OLauncher,Origin was killed since it was already running.,10,2
-	Sleep,5000				; Give Windows some time alone after Origin is killed
-	}
-Run,%oPATH%\%oEXE%
-WinWaitActive,Origin
-Sleep,30000					; To allow Origin time to launch
-Run,%pPATH%\%pEXE%
-Sleep,5000					; Give time for the application to open Origin
-Process,Wait,%pEXE%			; Verify if the program is running
-Process,WaitClose,%pEXE%	; Keep an eye out when the program shuts down
-if ErrorLevel = 0
-	{
-	MsgBox,4132,OLauncher,Would you like Origin to stay running?`n`nIf you use cloud saves, you may want to choose Yes so your saves are synced successfully.
-	IfMsgBox,YES
-		{
-		ExitApp
-		}
-	else
-		{
-		Process,Close,%oEXE%
-		TrayTip,OLauncher,Origin was killed by the user.,10,1
-		Sleep,10000
-		ExitApp
-		}
+; Check for an INI file in the working directory.
+IfNotExist, %A_WorkingDir%\%INI%
+{	FileAppend,
+	(
+	[OLauncher]
+	OriginInstallLocation=
+	OriginEXE=Origin.exe
+	GameInstallLocation=
+	GameEXE=
+	), %A_WorkingDir%\%INI%
+	MsgBox, 4160, %Title%, %ErrorININotFound%
+	ExitApp, 1
 	}
 
-TrayExit:
-	{
-	Critical
-		{
-		TrayTip,OLauncher,OLauncher will be killed in 10 seconds.
-		Sleep,10000
-		ExitApp
-		}
+; Let's read this INI.
+IniRead, OriginInstallLocation, %ini%, OLauncher, OriginInstallLocation
+IniRead, OriginEXE, %ini%, OLauncher, OriginEXE
+IniRead, GameInstallLocation, %ini%, OLauncher, GameInstallLocation
+IniRead, GameEXE, %ini%, OLauncher, GameEXE
+IniRead, Debug, %ini%, Debug, Debug
+
+; Let's verify what we read and make sure they exist.
+IfNotExist, %OriginInstallLocation%\%OriginEXE%
+{	MsgBox, 4160, %Title%, %ErrorOriginNotFound%
+	ExitApp, 2
 	}
+IfNotExist,%GameInstallLocation%\%GameEXE%
+{	MsgBox, 4160, %Title%, %ErrorGameNotFound%
+  ExitApp, 3
+	}
+
+; Let's see if Origin is running.
+Process, Exist, %OriginEXE%
+If ErrorLevel = 0
+{ TrayTip, %Title%, %InfoRunningOrigin%, 10, 2
+	Run, %OriginInstallLocation%\%OriginEXE%, , Min, OriginEXE_PID
+  Process, Wait, %OriginEXE%
+	Sleep, 5000 ; Origin needs some extra time to load into the background, otherwise we risk spawning a second Origin.
+	If Debug = 1
+	  MsgBox, 4160, %Title% - Debug, %OriginEXE% PID is %OriginEXE_PID%.
+  }
+Else
+{	If Debug = 1
+	  MsgBox, 4160, %Title% - Debug, %OriginEXE% PID is %ErrorLevel%
+	}
+
+; Now that Origin is running, let's run the game.
+Run, %GameInstallLocation%\%GameEXE%, , , GameEXE_PID
+Process, Wait, %GameEXE%
+If Debug = 1
+  MsgBox, 4160, %Title% - Debug, %GameEXE% PID is %GameEXE_PID%.
+
+; Monitor the %GameEXE% process.
+Loop
+{ Sleep, 7500 ; We only want to check this every 7.5 seconds.
+	Process, Exist, %GameEXE%
+	If ErrorLevel = 0
+	  Break
+}
+TrayTip, %Title%, %InfoGameClosed%, 10, 1
+Sleep, 10000 ; Give Origin 10 seconds to sync saves, change game states, etc.
+Process, Close, %OriginEXE%
+ExitApp
