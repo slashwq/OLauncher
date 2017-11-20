@@ -16,7 +16,7 @@ SetWorkingDir, %A_ScriptDir%
 
 ; Application Variables
 Title                   := "OLauncher"
-Version                 := "2.4"
+Version                 := "2.4-r2"
 ErrorININotFound        := "This looks to be the first time this has been run, or you didn't pass the four required launch options. An INI has been written to this folder. Please modify it to your needs, then run the app again." ; ExitApp, 1
 ErrorOriginNotFound     := "Origin doesn't seem to be installed. Please check your launch arguments or your INI file and try running this again." ; ExitApp, 2
 ErrorGameNotFound       := "The game listed doesn't seem to be installed. Please check your launch arguments or your INI file and try running this again." ; ExitApp, 3
@@ -24,6 +24,17 @@ ErrorOriginLaunchFailed := "Origin failed to launch correctly. You may want to c
 ErrorGameLaunchFailed   := "The game failed to launch correctly. You may want to check and see if the game will run without using this script." ; ExitApp, 5
 InfoRunningOrigin       := "Origin is not running. Launching Origin now."
 InfoGameClosed          := "The game has been closed. Origin will close soon."
+
+; How should we set up the tray menu?
+Menu, Tray, Add, %Title% %Version%, ReturnLabel
+Menu, Tray, Add, %GameEXE%, ReturnLabel
+Menu, Tray, Add
+Menu, Tray, Add, Close %Title%, TrayClose
+Menu, Tray, Disable, %Title% %Version%
+Menu, Tray, Disable, %GameEXE%
+Menu, Tray, Tip, %Title% %Version% `n %GameEXE%
+If A_IsCompiled = 1 ; If running as an EXE, not a raw AHK file, remove the AHK tray menu.
+  Menu, Tray, NoStandard
 
 ; Check if switches were passed to OLauncher.
 If 0 >= 4 ; We need at least 4 switches passed before we even consider looking at them.
@@ -115,18 +126,6 @@ Verbose=%Verbose%
     ExitApp
     }
   }
-
-Tray:
-; How should we set up the tray menu?
-Menu, Tray, Add, %Title% %Version%, ReturnLabel
-Menu, Tray, Add, %GameEXE%, ReturnLabel
-Menu, Tray, Add
-Menu, Tray, Add, Close %Title%, TrayClose
-Menu, Tray, Disable, %Title% %Version%
-Menu, Tray, Disable, %GameEXE%
-Menu, Tray, Tip, %Title% %Version% `n %GameEXE%
-If A_IsCompiled = 1 ; If running as an EXE, not a raw AHK file, remove the AHK tray menu.
-  Menu, Tray, NoStandard
 
 ; Let's see if Origin is running.
 Process, Exist, %OriginEXE%
