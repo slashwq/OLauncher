@@ -4,7 +4,7 @@
 
 ### Command Line
 
-`OLauncher.exe "<path to Origin>" "<Origin.exe>" "<path to Origin Game>" "<Game.exe>" "<CloseOriginAfter>"`
+`OLauncher.exe "<path to Origin>" "<Origin.exe>" "<path to Origin Game>" "<Game.exe>" "<RunAsAdmin>" "<CloseOriginAfter>"`
 
 * `<path to Origin>` is the install directory where Origin resides, usually `C:\Program Files (x86)\Origin`
 * `<Origin.exe>` is usually `Origin.exe`. This won't change unless EA changes Origin's executable name.
@@ -12,9 +12,23 @@
   * As an example, let's say Mass Effect Andromeda, which is installed to `D:\Games\Origin Games\Mass Effect Andromeda`
 * `<Game.exe>` is the game executable.
   * In Mass Effect Andromeda's case, it would be `MassEffectAndromeda.exe`.
+* `<RunAsAdmin>` is either `0` or `1`.
+  * `0` means that OLauncher will not attempt to run as an administrator.
+  * `1` means that OLauncher will attempt to run as an administrator.
+  * If you run OLauncher as admin, OLauncher will automatically overwrite any saved INI in the same directory. This is because OLauncher does not read the command line arguments again after running OLauncher, so it will store all values before restarting. If you like to run with INI files rather than launching from the command line, it's recommended to make multiple copies of OLauncher in different directories.
 * `<CloseOriginAfter>` is either `0` or `1`.
   * `0` means keep Origin open after closing the game.
   * `1` means close Origin after closing the game.
+
+#### Examples
+
+* Launching Mass Effect Andromeda, do not run as an admin and close Origin when done:
+
+  `OLauncher.exe "C:\Program Files (x86)\Origin" "Origin.exe" "D:\Games\Origin Games\Mass Effect Andromeda" "MassEffectAndromeda.exe" 0 1`
+
+* Launching the original Mass Effect, run as an admin and close Origin when done:
+
+  `OLauncher.exe "C:\Program Files (x86)\Origin" "Origin.exe" "D:\Games\Origin Games\Mass Effect\Binaries" "MassEffect.exe" 1 1`
 
 ### INI File
 

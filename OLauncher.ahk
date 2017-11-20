@@ -16,11 +16,12 @@ SetWorkingDir, %A_ScriptDir%
 
 ; Application Variables
 Title                   := "OLauncher"
-Version                 := "2.1-r2"
-INI                     := "OLauncher.ini"
+Version                 := "2.3"
 ErrorININotFound        := "This looks to be the first time this has been run, or you didn't pass the four required launch options. An INI has been written to this folder. Please modify it to your needs, then run the app again." ; ExitApp, 1
 ErrorOriginNotFound     := "Origin doesn't seem to be installed. Please check your INI file and try running this again." ; ExitApp, 2
 ErrorGameNotFound       := "The game listed doesn't seem to be installed. Please check your INI file and try running this again." ; ExitApp, 3
+ErrorOriginLaunchFailed := "Origin failed to launch correctly. You may want to check and see if Origin will run without using this script." ; ExitApp, 4
+ErrorGameLaunchFailed   := "The game failed to launch correctly. You may want to check and see if the game will run without using this script." ; ExitApp, 5
 InfoRunningOrigin       := "Origin is not running. Launching Origin now."
 InfoGameClosed          := "The game has been closed. Origin will close soon."
 
@@ -30,24 +31,28 @@ If 0 >= 4 ; We need at least 4 switches passed before we even consider looking a
   OriginEXE = %2%
   GameInstallLocation = %3%
   GameEXE = %4%
-	CloseOriginAfter = %5%
-	Debug = %6%
+  RunAsAdmin = %5%
+  If RunAsAdmin =
+    RunAsAdmin := "0"
+	CloseOriginAfter = %6%
+	Debug = %7%
 	If Debug =
 	  Debug := "0"
-	Verbose = %7%
+	Verbose = %8%
 	If Verbose =
 	  Verbose := "0"
-  Gosub, Tray ; We don't need to read an INI file, let's skip it.
+  Gosub, Verify ; We don't need to read an INI file, let's skip it.
   }
 Else
-{	IfExist, %A_WorkingDir%\%INI% ; So, we don't have switches, do we have an INI?
-	{ IniRead, OriginInstallLocation, %ini%, OLauncher, OriginInstallLocation
-	  IniRead, OriginEXE, %ini%, OLauncher, OriginEXE
-	  IniRead, GameInstallLocation, %ini%, OLauncher, GameInstallLocation
-	  IniRead, GameEXE, %ini%, OLauncher, GameEXE
-		IniRead, CloseOriginAfter, %INI%, OLauncher, CloseOriginAfter
-	  IniRead, Debug, %ini%, Debug, Debug
-		IniRead, Verbose, %INI%, Debug, Verbose
+{	IfExist, %A_WorkingDir%\%A_ScriptName%.ini ; So, we don't have switches, do we have an INI?
+	{ IniRead, OriginInstallLocation, %A_ScriptName%.ini, OLauncher, OriginInstallLocation
+	  IniRead, OriginEXE, %A_ScriptName%.ini, OLauncher, OriginEXE
+	  IniRead, GameInstallLocation, %A_ScriptName%.ini, OLauncher, GameInstallLocation
+	  IniRead, GameEXE, %A_ScriptName%.ini, OLauncher, GameEXE
+    IniRead, RunAsAdmin, %A_ScriptName%.ini, OLauncher, RunAsAdmin
+		IniRead, CloseOriginAfter, %A_ScriptName%.ini, OLauncher, CloseOriginAfter
+	  IniRead, Debug, %A_ScriptName%.ini, Debug, Debug
+		IniRead, Verbose, %A_ScriptName%.ini, Debug, Verbose
 	  }
 	Else ; We don't have an INI, so let's make one and tell the user about it.
 	{ FileAppend,
@@ -57,6 +62,7 @@ OriginInstallLocation=
 OriginEXE=Origin.exe
 GameInstallLocation=
 GameEXE=
+RunAsAdmin=0
 CloseOriginAfter=1
 
 [Debug]
@@ -68,14 +74,56 @@ Debug=0
 ; OLauncher detects that the game closes. It's not required, but can help
 ; if Origin is closing in the middle of your game.
 Verbose=0
-    ), %A_WorkingDir%\%INI%
+    ), %A_WorkingDir%\%A_ScriptName%.ini
 	  MsgBox, 4160, %Title%, %ErrorININotFound%
 	  ExitApp, 1
     }
 	}
 
-; How should we set up the tray menu?
+; Let's verify what we read and make sure they exist.
+Verify:
+IfNotExist, %OriginInstallLocation%\%OriginEXE%
+{	MsgBox, 4160, %Title%, %ErrorOriginNotFound%
+	ExitApp, 2
+	}
+IfNotExist,%GameInstallLocation%\%GameEXE%
+{	MsgBox, 4160, %Title%, %ErrorGameNotFound%
+  ExitApp, 3
+	}
+
+; Was RunAsAdmin configured? We may need to reload the entire script.
+If RunAsAdmin = 1
+{ If Not A_IsAdmin
+  { FileDelete, %A_WorkingDir%\%A_ScriptName%.ini
+    FileAppend,
+	  (
+; OLauncher was run as an administrator, so this INI was saved
+; automatically at %A_Now%.
+[OLauncher]
+OriginInstallLocation=%OriginInstallLocation%
+OriginEXE=%OriginEXE%
+GameInstallLocation=%GameInstallLocation%
+GameEXE=%GameEXE%
+RunAsAdmin=%RunAsAdmin%
+CloseOriginAfter=%CloseOriginAfter%
+
+[Debug]
+; Debug shows message boxes with process IDs. Generally used to help
+; troubleshoot why OLauncher isn't launching a program correctly.
+Debug=%Debug%
+
+; Verbose shows tooltips that show if Origin needs to be launched and when
+; OLauncher detects that the game closes. It's not required, but can help
+; if Origin is closing in the middle of your game.
+Verbose=%Verbose%
+    ), %A_WorkingDir%\%A_ScriptName%.ini
+    Run *RunAs "%A_ScriptFullPath%"
+    ExitApp
+    }
+  }
+
 Tray:
+; How should we set up the tray menu?
 Menu, Tray, Add, %Title% %Version%, ReturnLabel
 Menu, Tray, Add, %GameEXE%, ReturnLabel
 Menu, Tray, Add
@@ -86,22 +134,16 @@ Menu, Tray, Tip, %Title% %Version% `n %GameEXE%
 If A_IsCompiled = 1 ; If running as an EXE, not a raw AHK file, remove the AHK tray menu.
   Menu, Tray, NoStandard
 
-; Let's verify what we read and make sure they exist.
-IfNotExist, %OriginInstallLocation%\%OriginEXE%
-{	MsgBox, 4160, %Title%, %ErrorOriginNotFound%
-	ExitApp, 2
-	}
-IfNotExist,%GameInstallLocation%\%GameEXE%
-{	MsgBox, 4160, %Title%, %ErrorGameNotFound%
-  ExitApp, 3
-	}
-
 ; Let's see if Origin is running.
 Process, Exist, %OriginEXE%
 If ErrorLevel = 0
 { If Verbose = 1
 	  TrayTip, %Title%, %InfoRunningOrigin%, 10, 2
-	Run, %OriginInstallLocation%\%OriginEXE%, %A_Temp%, Min, OriginEXE_PID
+	Run, %OriginInstallLocation%\%OriginEXE%, %A_Temp%, Min UseErrorLevel, OriginEXE_PID
+  If ErrorLevel = ERROR
+  { MsgBox, 4160, %Title%, %ErrorOriginLaunchFailed%
+    ExitApp, 4
+    }
   Process, Wait, %OriginEXE%
 	Sleep, 10000 ; Origin needs some extra time to load into the background, otherwise we risk spawning a second Origin.
 	If Debug = 1
@@ -113,18 +155,23 @@ Else
 	}
 
 ; Now that Origin is running, let's run the game.
-Run, %GameInstallLocation%\%GameEXE%, , , GameEXE_PID
+Run, %GameInstallLocation%\%GameEXE%, , UseErrorLevel, GameEXE_PID
+If ErrorLevel = ERROR
+{ MsgBox, 4160, %Title%, %ErrorGameLaunchFailed%
+  ExitApp, 5
+  }
 Process, Wait, %GameEXE%
 If Debug = 1
   MsgBox, 4160, %Title% - Debug, %GameEXE% PID is %GameEXE_PID%.
 
 ; Monitor the %GameEXE% process.
+Sleep, 15000 ; We'll start off by sleeping a bit before we really monitor.
 Loop
 { Sleep, 15000 ; We only want to check this every 15 seconds.
 	Process, Exist, %GameEXE%
 	If ErrorLevel = 0
 	  Break
-}
+  }
 If Verbose = 1
   TrayTip, %Title%, %InfoGameClosed%, 10, 1
 Sleep, 7500 ; Give Origin 7.5 seconds to sync saves, change game states, etc.
