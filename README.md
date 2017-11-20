@@ -15,7 +15,7 @@
 * `<RunAsAdmin>` is either `0` or `1`.
   * `0` means that OLauncher will not attempt to run as an administrator.
   * `1` means that OLauncher will attempt to run as an administrator.
-  * If you run OLauncher as admin, OLauncher will automatically overwrite any saved INI in the same directory. This is because OLauncher does not read the command line arguments again after running OLauncher, so it will store all values before restarting. If you like to run with INI files rather than launching from the command line, it's recommended to make multiple copies of OLauncher in different directories.
+    * If you run OLauncher as admin, OLauncher will automatically overwrite the saved INI in the directory. This is because OLauncher does not read the command line arguments again after running as admin, so it stores all values before restarting. For more info on running with INI files, check the INI File section below.
 * `<CloseOriginAfter>` is either `0` or `1`.
   * `0` means keep Origin open after closing the game.
   * `1` means close Origin after closing the game.
@@ -33,6 +33,15 @@
 ### INI File
 
 OLauncher supports launching through an INI file as well. If you run `OLauncher.exe` without any command line arguments, OLauncher will generate an INI in the directory where it was run. From there, you can fill out the game details and save the file. Running `OLauncher.exe` again with the INI beside it will launch whatever is found in the INI.
+
+OLauncher's INI that is created is named after the EXE file, so you can have multiple EXE files that run multiple INI files.
+
+For example:
+
+* `OLauncher.exe` would create `OLauncher.exe.ini` and read from it.
+* `OLauncher-masseffect.exe` would create `OLauncher-masseffect.exe.ini` and read from it.
+
+This allows you to have multiple EXEs and INIs in one directory.
 
 ## About the Script
 
